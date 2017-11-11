@@ -1,0 +1,73 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Processamento;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.process.ImageProcessor;
+
+/**
+ *
+ * @author JoaoMarcos
+ */
+public class Acessar_imagens {
+    static final int QUANT_MOEDAS = 95, SIGMA = 3;
+    
+    public static void main (String args[]){
+        Funcoes f = new Funcoes();
+        int i = QUANT_MOEDAS;
+//        while(i > 0){
+//            ImagePlus original = IJ.openImage("imagens/moeda ("+i+").png");
+//            ImagePlus img = original.duplicate();
+//            
+//            
+//            i--;
+//        }
+        
+        ImagePlus img = IJ.openImage("imagens/moeda (11).png");
+        img.setTitle("1");        
+        
+        ImagePlus img2 = img.duplicate();
+        img2.setTitle("2");
+
+        ImagePlus img3 = IJ.openImage("imagens/moeda (12).png");
+        img3.setTitle("3"); 
+
+        f.desfocarGauss(img, SIGMA);      
+        f.converterCinza(img);
+        f.limiarizar(img);
+        ImageProcessor ip = img.getProcessor();
+        if (ip.getPixel(2, 3) == 0 && ip.getPixel(3, 2) == 0)
+            f.inverter(img);
+        f.fillHoles(img);
+        int raio = (int) f.calcRaio(img);
+        f.fechamentoCircular(img, raio);
+        f.aberturaCircular(img, raio);
+        f.inverter(img);
+        
+        f.mediana(img2);
+        f.converterCinza(img2);
+        f.limiarizar(img2);
+        f.fechamentoCircular(img2, raio);
+        f.fechamentoCircular(img2, raio);
+       
+        f.desfocarGauss(img3, SIGMA);
+        f.converterCinza(img3);
+        f.limiarizar(img3);
+        ImageProcessor ip3 = img3.getProcessor();
+        if (ip3.getPixel(2, 3) == 0 && ip3.getPixel(3, 2) == 0)        
+            f.inverter(img3);
+        f.fillHoles(img3);
+        raio = (int) f.calcRaio(img3); 
+        f.fechamentoCircular(img3, raio);
+        f.aberturaCircular(img3, raio);
+        f.inverter(img3);
+        
+        img.show();
+        //img2.show();
+        img3.show();
+    }
+}
