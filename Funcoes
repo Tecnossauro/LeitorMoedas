@@ -1,0 +1,126 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Processamento;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.plugin.ContrastEnhancer;
+import ij.plugin.filter.GaussianBlur;
+import ij.process.ByteProcessor;
+import ij.process.ImageConverter;
+import ij.process.ImageProcessor;
+import ij.process.ImageStatistics;
+import imagingbook.pub.morphology.BinaryMorphologyFilter;
+
+/**
+ *
+ * @author JoaoMarcos
+ */
+public class Funcoes {
+    public void aberturaCircular(ImagePlus img, int raio){
+        ImageProcessor ip = img.getProcessor();
+        BinaryMorphologyFilter es = new BinaryMorphologyFilter.Disk(raio);
+        es.open((ByteProcessor)ip);
+    }    
+    
+    public void converterCinza(ImagePlus img){
+        ImageConverter imgCinza = new ImageConverter(img);
+        imgCinza.convertToGray8();
+        img.updateAndDraw();
+    }
+
+    public void desfocarGauss(ImagePlus img, int sigma){
+        ImageProcessor ip = img.getProcessor();
+        GaussianBlur gb = new GaussianBlur();
+        gb.blurGaussian(ip, sigma);
+    }    
+    
+    public void detectarBordas(ImagePlus img){
+        ImageProcessor ip = img.getProcessor();
+        ip.findEdges();
+    }
+    
+    public void dilatarCircular(ImagePlus img, int raio){
+        ImageProcessor ip = img.getProcessor();
+        
+        BinaryMorphologyFilter es = new BinaryMorphologyFilter.Disk(raio);
+        
+        es.dilate((ByteProcessor)ip);
+    }    
+
+    public void equalizar(ImagePlus img){
+        ContrastEnhancer ce = new ContrastEnhancer();
+        ce.equalize(img);
+    }
+
+    public void erodirCircular(ImagePlus img, int raio){
+        ImageProcessor ip = img.getProcessor();
+        
+        BinaryMorphologyFilter es = new BinaryMorphologyFilter.Disk(raio);
+        
+        es.erode((ByteProcessor)ip);
+    }
+    
+    public void fechamentoCircular(ImagePlus img, int raio){
+        ImageProcessor ip = img.getProcessor();
+        BinaryMorphologyFilter es = new BinaryMorphologyFilter.Disk(raio);
+        es.close((ByteProcessor)ip);
+    }
+ 
+    public void fillHoles(ImagePlus img){
+        IJ.run(img,"Fill Holes","");
+    }    
+
+    public void inverter(ImagePlus img){
+        ImageProcessor ip = img.getProcessor();
+        ip.invert();
+    }
+    
+    public void limiarizar(ImagePlus img){
+        ImageProcessor ip = img.getProcessor();
+        ip.autoThreshold();
+    }
+    
+    public void mediana(ImagePlus img){
+        ImageProcessor ip = img.getProcessor();
+        ip.medianFilter();
+    }
+    
+    public double calcRaio(ImagePlus img){
+        ImageProcessor ip = img.getProcessor();
+        ImageStatistics is = ip.getStatistics();
+        
+        double raio = 0;
+        double meioVerImg = img.getHeight()/2;
+        double meioHorImg = img.getWidth()/2;
+        int counterVer = 0;
+        int counterHor = 0;
+        
+        for (int i = 0; i < img.getWidth(); i++){
+            if(ip.getPixel(i,(int) meioVerImg) == 255)
+                counterHor++;
+            else
+                break;
+        }  
+        
+        for (int j = 0; j < img.getHeight(); j++){
+                if(ip.getPixel((int) meioHorImg, j) == 255)
+                    counterVer++;
+                else
+                    break;
+        }
+        
+        if (counterVer <= counterHor)
+            raio = (double) counterVer / 2;                  
+        else if (counterHor <= counterVer)
+            raio = (double) counterHor / 2;        
+        
+        
+        System.out.println("Raio: " + raio);
+        
+        return raio;
+    }
+}
